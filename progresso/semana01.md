@@ -7,7 +7,8 @@
 ## O que foi estudado
 
 Nesta semana tivemos a apresentação do curso e da metodologia de ensino, entendendo como serão as aulas, atividades práticas e avaliações.
-Estudamos algumas estruturas básicas do código em C.
+
+Estudei algumas estruturas básicas do código em C.
 
 - Função main()
 
@@ -22,6 +23,8 @@ Estudamos algumas estruturas básicas do código em C.
 - Operadores aritméticos (+, -, *, /, %)
 
 - Operadores lógicos (=, ==, >=, <=, !=, etc)
+
+- Condicionais (if, else, switch)
 
 ## Dificuldades
 
