@@ -26,6 +26,10 @@ Estudei algumas estruturas básicas do código em C.
 
 - Condicionais (if, else, switch)
 
+## Resolução
+
+Não utilizei IA para responder as questões, como já tenho experiência com a linguagem C eu consegui realizar as atividades do dia (2/3/2026) no beecrowd sozinho.
+
 ## Dificuldades
 
 Não tive nenhuma dificuldade
