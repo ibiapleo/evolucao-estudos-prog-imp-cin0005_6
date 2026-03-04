@@ -2,24 +2,31 @@
 
 ## Data
 
-> Preencha com a data da semana.
+> 2/3/2026
 
 ## O que foi estudado
 
-> Descreva os tópicos abordados nesta semana.
+Nesta semana tivemos a apresentação do curso e da metodologia de ensino, entendendo como serão as aulas, atividades práticas e avaliações.
+Estudamos algumas estruturas básicas do código em C.
+
+- Função main()
+
+- Entrada e saída de dados (printf e scanf)
+
+- Diretivas como #include
+
+- Tipos primitivos (int, float, double, char)
+
+- Declaração de variáveis
+
+- Operadores aritméticos (+, -, *, /, %)
+
+- Operadores lógicos (=, ==, >=, <=, !=, etc)
 
 ## Dificuldades
 
-> Liste os pontos que você achou mais difíceis ou confusos.
+Não tive nenhuma dificuldade
 
 ## Aprendizados
 
-> Registre os principais conceitos que você assimilou esta semana.
-
-## Melhorias feitas
-
-> Descreva revisões ou melhorias que você fez em exercícios anteriores.
-
-## Próximos passos
-
-> O que você pretende estudar ou praticar na próxima semana?
+Uma coisa que não conhecia de C que descobri lendo os materiais é que C tem ternários na linguagem.
