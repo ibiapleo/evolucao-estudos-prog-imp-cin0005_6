@@ -2,7 +2,7 @@
 
 ## Aprendizados
 
-> Utilizei IA apenas na questão 2 (questão do Xupenio), onde a priori eu não consegui enxergar uma forma de fazer aquela soma sem utilizar laços de repetição, mas com o uso de IA eu entendi que daria para fazer isso de forma aritmética utilizando matemática, sem ter que utilizar um processo iterativo. Para as demais questões, fiz todas individualmente e não tive dúvidas ou aprendizados.
+> Utilizei IA apenas na questão 2 (questão do Xupenio), onde a priori eu não consegui enxergar uma forma de fazer aquela soma sem utilizar laços de repetição, mas com o uso de IA eu entendi que daria para fazer isso de forma aritmética utilizando matemática, sem ter que utilizar um processo iterativo. Para as demais questões, fiz todas individualmente e não tive dúvidas.
 
 ## Exercícios
 
@@ -15,21 +15,23 @@
 
 ## Como Compilar
 
-### Linux
+**OBS!** Via gcc tanto no windows como no linux/macos
+
+### Linux/MacOS
 - Para compilar o código:
 ```bash
-gcc questao.c -o nome_do_build
+gcc questao.c -o ./builds/nome_do_build
 ```
 - Para rodar o código:
 ```bash
-./nome_do_build
+./builds/nome_do_build
 ```
 ### Windows (via gcc MINGW)
 - Para compilar o código:
 ```bash
-gcc questao.c -o nome_do_build
+gcc questao.c -o .\builds\nome_do_build
 ```
 - Para rodar o código:
 ```bash
-.\nome_do_build.exe
+.\builds\nome_do_build.exe
 ```
