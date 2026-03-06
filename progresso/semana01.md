@@ -2,7 +2,7 @@
 
 ## Data
 
-> 2/3/2026
+> 2/3/2026 - 4/3/2026
 
 ## O que foi estudado
 
@@ -28,11 +28,11 @@ Estudei algumas estruturas básicas do código em C.
 
 ## Resolução
 
-Não utilizei IA para responder as questões, como já tenho experiência com a linguagem C eu consegui realizar as atividades do dia (2/3/2026) no beecrowd sozinho.
+Como já tenho experiência com a linguagem C eu consegui realizar as atividades do dia 2/3/2026 no beecrowd tranquilamente. Nas atividades do dia 4/3/2026 também consegui fazer a maioria sozinho, utilzei IA apenas na segunda atividade da lista 01 para que ela me ajudasse a enxergar o problema de forma diferente, auxiliando na minha criatividade.
 
 ## Dificuldades
 
-Não tive nenhuma dificuldade
+Não tive nenhuma dificuldade.
 
 ## Aprendizados
 
