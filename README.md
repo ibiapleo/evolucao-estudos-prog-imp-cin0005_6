@@ -11,26 +11,23 @@ Documentar a evolução dos estudos ao longo do semestre, armazenando listas de 
 ├── README.md               # Este arquivo — visão geral do repositório
 ├── cronograma.md           # Cronograma por data, associando aulas às listas
 ├── listas/                 # Listas de exercícios organizadas por tema
-│   ├── lista01_io_condicionais/
-│   ├── lista02_repeticao/
-│   ├── lista03_vetores_strings/
-│   ├── lista04_matrizes_funcoes/
-│   ├── lista05_ponteiros/
-│   ├── lista06_alocacao_dinamica/
-│   ├── lista07_matrizes_dinamicas/
-│   ├── lista08_structs/
-│   ├── lista09_unions_bitfields/
-│   ├── lista10_arquivos/
-│   ├── lista11_pilhas_filas/
-│   ├── lista12_listas_encadeadas/
-│   └── lista13_arvores/
+│   ├── lista01/
+│   ├── lista02/
+│   ├── lista03/
+│   ├── lista04/
+│   ├── lista05/
+│   ├── lista06/
+│   ├── lista07/
+│   ├── lista08/
+│   ├── lista09/
+│   ├── lista10/
+│   ├── lista11/
+│   ├── lista12/
+│   └── lista13/
 ├── progresso/              # Diário de estudos semana a semana
 │   ├── semana01.md
 │   ├── semana02.md
 │   └── ...
-├── tests/                  # Scripts e casos de teste
-├── notebooks/              # Anotações exploratórias (Jupyter ou Markdown)
-└── docs/                   # Documentação adicional e referências
 ```
 
 Cada pasta dentro de `listas/` segue o padrão:
