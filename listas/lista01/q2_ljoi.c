@@ -2,20 +2,20 @@
 
 int main()
 {
-    int N, A, B;
-    scanf("%d", &N);
-    scanf("%d %d", &A, &B);
+    long N, A, B;
+    scanf("%ld", &N);
+    scanf("%ld %ld", &A, &B);
 
-    int somaAteN = (N * (N + 1))/2;
-    int kb = N/B;
-    int somaMultiplosDeB = B * (kb * (kb + 1))/2;
-    int ka = N/A;
-    int somaMultiplosDeA = A * (ka * (ka + 1))/2;
-    int kAB = N/(A*B);
-    int somaMultiplosDeAB = (A*B) * (kAB * (kAB + 1))/2;
+    long somaAteN = (N * (N + 1))/2;
+    long kb = N/B;
+    long somaMultiplosDeB = B * (kb * (kb + 1))/2;
+    long ka = N/A;
+    long somaMultiplosDeA = A * (ka * (ka + 1))/2;
+    long kAB = N/(A*B);
+    long somaMultiplosDeAB = (A*B) * (kAB * (kAB + 1))/2;
 
-    int somaFinal = somaAteN - somaMultiplosDeA - somaMultiplosDeB + somaMultiplosDeAB;
-    printf("%d\n", somaFinal);
+    long somaFinal = somaAteN - somaMultiplosDeA - somaMultiplosDeB + somaMultiplosDeAB;
+    printf("%ld\n", somaFinal);
     if(somaFinal % 2 == 0) {
         printf("Lá ele!!!\n");
     } else {

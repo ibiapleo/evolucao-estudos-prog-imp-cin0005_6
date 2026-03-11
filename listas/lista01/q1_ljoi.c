@@ -28,7 +28,7 @@ int main()
         printf("Melhor nao arriscar.");
     } else if (sorte <= 79) {
         printf("Por sua conta em risco.");
-    } else if (sorte < 90) {
+    } else if (sorte <= 90) {
         printf("Hoje vale a pena arriscar.");
     } else {
         printf("Nao tenha medo de virar cartas hoje.");
