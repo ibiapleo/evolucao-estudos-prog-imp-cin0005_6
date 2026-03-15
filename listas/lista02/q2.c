@@ -7,29 +7,17 @@ int main()
 
     int primeiro = -1;
     int q = 0;
-    int i;
 
     int start = n_inicial;
-    if (start < 3) start = 3;
-    if (start % 2 == 0) start++;
-
-    if (n_inicial <= 2 && 2 < k) {
-        int count2 = 0;
-        if (p == 0) {
-            primeiro = 2;
-        }
-    }
-
-    for (i = start; i < k; i += 2) {
+    
+    for (int i = start; i < k; i += 2) {
         int n = i;
-        int count = 0;
+        int contador = 0;
         int invalido = 0;
 
-
-        int j;
-        for (j = 3; j * j <= n; j += 2) {
+        for (int j = 3; j * j <= n; j += 2) {
             if (n % j == 0) {
-                count++;
+                contador++;
                 int vezes = 0;
                 while (n % j == 0) {
                     n /= j;
@@ -42,9 +30,9 @@ int main()
             }
         }
         if (invalido) continue;
-        if (n > 2) count++;
+        if (n > 2) contador++;
 
-        if (count == p) {
+        if (contador == p) {
             if (primeiro == -1) {
                 primeiro = i;
             } else {
