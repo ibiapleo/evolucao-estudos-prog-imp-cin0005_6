@@ -47,7 +47,12 @@ int main()
         }
     }
 
-    int somaAlgarismos = (int)(fValorMaisProximo/10) + (fValorMaisProximo % 10);
+    int somaAlgarismos = 0;
+    int valorTemp = fValorMaisProximo;
+    while (valorTemp > 0) {
+        somaAlgarismos += valorTemp % 10;
+        valorTemp /= 10;
+    }
     int vip = 0;
     if (somaAlgarismos > 10) {
         vip = 1;
