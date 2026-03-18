@@ -10,29 +10,41 @@ int main()
 
     int start = n_inicial;
     
-    for (int i = start; i < k; i += 2) {
+    for (int i = start; i < k; i++) {
         int n = i;
         int contador = 0;
         int invalido = 0;
 
-        for (int j = 3; j * j <= n; j += 2) {
-            if (n % j == 0) {
-                contador++;
-                int vezes = 0;
-                while (n % j == 0) {
-                    n /= j;
-                    vezes++;
-                }
-                if (vezes > 1) {
-                    invalido = 1;
-                    break;
+        if (n == 0) {
+            invalido = 1;
+        } else {
+            while (n % 2 == 0) {
+                n /= 2;
+            }
+
+            for (int j = 3; (long long)j * j <= n; j += 2) {
+                if (n % j == 0) {
+                    int vezes = 0;
+                    while (n % j == 0) {
+                        n /= j;
+                        vezes++;
+                    }
+
+                    if (vezes > 1) {
+                        invalido = 1;
+                        break;
+                    }
+
+                    contador++;
                 }
             }
-        }
-        if (invalido) continue;
-        if (n > 2) contador++;
 
-        if (contador == p) {
+            if (!invalido && n > 1) {
+                contador++;
+            }
+        }
+
+        if (!invalido && contador == p) {
             if (primeiro == -1) {
                 primeiro = i;
             } else {
