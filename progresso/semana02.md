@@ -2,24 +2,35 @@
 
 ## Data
 
-> Preencha com a data da semana.
+> 05/03/2026 - 16/03/2026
 
 ## O que foi estudado
 
-> Descreva os tópicos abordados nesta semana.
+Nesta semana estudei estruturas de laços e repetição em C.
+
+- Laço for
+- Laço while
+- Laço do-while
+- Controle de fluxo (break, continue)
+- Nested loops
+- Casos de uso e aplicações práticas
+
+## Resolução
+
+Consegui fazer todas as atividades desta semana tranquilamente. Utilizei IA apenas para entender melhor o contexto e as especificações de algumas questões, mas resolvi todos os problemas de forma independente.
 
 ## Dificuldades
 
-> Liste os pontos que você achou mais difíceis ou confusos.
+Não tive nenhuma dificuldade.
 
 ## Aprendizados
 
-> Registre os principais conceitos que você assimilou esta semana.
+Reforcei meus conhecimentos sobre laços de repetição ao ler os materiais fornecidos. Compreendi melhor as diferenças entre cada tipo de laço e quando utilizá-los. Adquiri mais prática na utilização de laços aninhados para resolver problemas mais complexos.
 
 ## Melhorias feitas
 
-> Descreva revisões ou melhorias que você fez em exercícios anteriores.
+Nenhuma revisão foi necessária em exercícios anteriores.
 
 ## Próximos passos
 
-> O que você pretende estudar ou praticar na próxima semana?
+Na próxima semana, pretendo estudar arrays e manipulação de vetores, aprofundando o conhecimento em estruturas de dados básicas.

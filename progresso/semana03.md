@@ -2,24 +2,32 @@
 
 ## Data
 
-> Preencha com a data da semana.
+> 17/03/2026 - 23/03/2026
 
 ## O que foi estudado
 
-> Descreva os tópicos abordados nesta semana.
+Nesta semana estudei formatação de saída, arrays de strings e o uso de diretivas do pré-processador em C.
+
+- Formatação com especificadores como `%8s` para alinhar melhor a visualização
+- Arrays de string
+- Diretiva `#define`
+
+## Resolução
+
+Consegui avançar bem nas atividades da semana e reforçar os conceitos com prática.
 
 ## Dificuldades
 
-> Liste os pontos que você achou mais difíceis ou confusos.
+Não tive dificuldades relevantes.
 
 ## Aprendizados
 
-> Registre os principais conceitos que você assimilou esta semana.
+Aprendi a usar `%(numero)s` para organizar melhor a saída quando a string tem menos caracteres, reforçando a legibilidade da visualização. Também consolidei o entendimento sobre arrays de string e revisei o uso da diretiva `#define`.
 
 ## Melhorias feitas
 
-> Descreva revisões ou melhorias que você fez em exercícios anteriores.
+Revisei a formatação de saída em soluções anteriores para deixar a exibição mais organizada.
 
 ## Próximos passos
 
-> O que você pretende estudar ou praticar na próxima semana?
+Na próxima semana, pretendo praticar mais exercícios envolvendo manipulação de strings e matrizes.
