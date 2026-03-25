@@ -29,7 +29,10 @@ int main()
                 ehClienteY = 1;
                 if (totalLatasCompradas >= 50) {
                     int numeroCliente = i;
-                    printf("Quem levou a cesta basica foi o %d* cliente atendido por coragem, as %s. Que comprou %d latas.\n", numeroCliente, horarioCliente, latas[j]);
+                    if (latas[j] == 1)
+                        printf("Quem levou a cesta basica foi o %d* cliente atendido por coragem, as %s. Que comprou 1 lata.\n", numeroCliente, horarioCliente);
+                    else 
+                        printf("Quem levou a cesta basica foi o %d* cliente atendido por coragem, as %s. Que comprou %d latas.\n", numeroCliente, horarioCliente, latas[j]);
                     return 0; // Encerra o programa após encontrar o cliente que levou a cesta básica
                 }
                 break;
@@ -50,7 +53,10 @@ int main()
             return 0; 
         }
     }
-
-    printf("Ainda nao foram vendidas latas suficientes. Faltam %d latas.\n", 50 - totalLatasCompradas);
+    int faltam = 50 - totalLatasCompradas;
+    if (faltam == 1)
+        printf("Ainda nao foram vendidas latas suficientes. Falta %d lata.\n", faltam);
+    else
+        printf("Ainda nao foram vendidas latas suficientes. Faltam %d latas.\n", faltam);
     return 0;
 }
