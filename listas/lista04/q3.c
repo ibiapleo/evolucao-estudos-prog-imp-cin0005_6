@@ -42,7 +42,7 @@ void pedroWalkthrough(char in[], int size, int city[4][4]) {
             }
         }
     }
-    printf("Coordenada X: %d, Y: %d\n", greater_x, greater_y); // imprime as coordenadas do local mais visitado por Pedro
+    printf("Coordenada X:%d, Y:%d\n", greater_x, greater_y); // imprime as coordenadas do local mais visitado por Pedro
 }   
 
 int main()
