@@ -1,6 +1,45 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+// Operações
+void calibration(int **mat, int l, int c) { 
+    for (int i = 0; i < l; i++) {
+        for (int j = 0; j < c; j++) {
+            mat[i][j] = mat[i][j] + 5; // calibração adiciona 5 a cada elemento
+        }
+    }
+}
+void saturation(int **mat, int l, int c) { 
+    for (int i = 0; i < l; i++) {
+        for (int j = 0; j < c; j++) {
+            mat[i][j] = mat[i][j] > 80 ? 80 : mat[i][j]; // saturação limita os valores a 80
+        }
+    }
+}
+void amplification(int **mat, int l, int c) {
+    for (int i = 0; i < l; i++) {
+        for (int j = 0; j < c; j++) {
+            mat[i][j] = mat[i][j] * 2; // amplificação dobra os valores
+        }
+    }
+}
+void pipeline(int **mat, int l, int c) {
+    int k; // quantidade de filtros
+    scanf("%d", &k);
+    int filters[k]; // array para armazenar os filtros a serem aplicados
+    for (int i = 0; i < k; i++) scanf("%d", &filters[i]); // leitura dos filtros
+    for (int i = 0; i < k; i++) { // aplicação dos filtros na ordem lida
+        if (filters[i] == 1) {
+            calibration(mat, l, c);
+        } else if (filters[i] == 2) {
+            saturation(mat, l, c);
+        } else if (filters[i] == 3) {
+            amplification(mat, l, c);
+        }
+    }
+}
+
+// Função para alocar matriz dinamicamente (ponteiro de ponteiro)
 int **allocate_matrix(int l, int c) {
     int **mat = (int **)malloc(l * sizeof(int*));
 
@@ -20,46 +59,25 @@ int **allocate_matrix(int l, int c) {
     return mat;
 }
 
-void calibration(int **mat, int l, int c) { 
+
+// Função para liberar a matriz
+void free_matrix(int **mat, int l) {
+    for (int i = 0; i < l; i++) {
+        free(mat[i]);
+    }
+    free(mat);
+}
+
+// Função para ler os elementos da matriz
+void read_matrix(int **mat, int l, int c) {
     for (int i = 0; i < l; i++) {
         for (int j = 0; j < c; j++) {
-            mat[i][j] = mat[i][j] + 5;
+            scanf("%d", &mat[i][j]);
         }
     }
 }
 
-void saturation(int **mat, int l, int c) { 
-    for (int i = 0; i < l; i++) {
-        for (int j = 0; j < c; j++) {
-            mat[i][j] = mat[i][j] > 80 ? 80 : mat[i][j];
-        }
-    }
-}
-
-void amplification(int **mat, int l, int c) {
-    for (int i = 0; i < l; i++) {
-        for (int j = 0; j < c; j++) {
-            mat[i][j] = mat[i][j] * 2;
-        }
-    }
-}
-
-void pipeline(int **mat, int l, int c) {
-    int k; // quantidade de filtros
-    scanf("%d", &k);
-    int filters[k];
-    for (int i = 0; i < k; i++) scanf("%d", &filters[i]);
-    for (int i = 0; i < k; i++) {
-        if (filters[i] == 1) {
-            calibration(mat, l, c);
-        } else if (filters[i] == 2) {
-            saturation(mat, l, c);
-        } else if (filters[i] == 3) {
-            amplification(mat, l, c);
-        }
-    }
-}
-
+// Função para imprimir o resultado final
 void print_matrix(int **mat, int l, int c) {
     printf("Matriz processada:\n");
     int critical_value = 0;
@@ -79,34 +97,19 @@ void print_matrix(int **mat, int l, int c) {
     printf("Posicao: (%d, %d)\n", critical_posx, critical_posy);
 }
 
-void free_matrix(int **mat, int l) {
-    for (int i = 0; i < l; i++) {
-        free(mat[i]);
-    }
-    free(mat);
-}
-
-void read_matrix(int **mat, int l, int c) {
-    for (int i = 0; i < l; i++) {
-        for (int j = 0; j < c; j++) {
-            scanf("%d", &mat[i][j]);
-        }
-    }
-}
-
 int main()
 {
     int n, m;
-    scanf("%d %d", &n, &m);
+    scanf("%d %d", &n, &m); // leitura do número de linhas (n) e colunas (m) da matriz
 
-    int **mat = allocate_matrix(n, m);
+    int **mat = allocate_matrix(n, m); // alocação dinâmica da matriz
 
-    read_matrix(mat, n, m);
+    read_matrix(mat, n, m); // leitura dos elementos da matriz
 
-    int command;
+    int command; // comando para escolher a operação a ser aplicada
     do {
         scanf("%d", &command);
-        switch (command) {
+        switch (command) { // aplicação da operação escolhida
             case 1:
                 calibration(mat, n, m);
                 break;
@@ -122,9 +125,9 @@ int main()
             default:
                 break;
         } 
-    } while (command != 0);
+    } while (command != 0); // o loop continua até que o comando 0 seja lido, indicando o fim das operações
 
-    print_matrix(mat, n, m);
-    free_matrix(mat, n);
+    print_matrix(mat, n, m); // impressão do resultado final
+    free_matrix(mat, n); // liberação da memória alocada para a matriz
     return 0;
 }
