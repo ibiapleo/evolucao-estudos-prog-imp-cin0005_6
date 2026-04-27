@@ -94,7 +94,7 @@ void print_matrix(int **mat, int l, int c) {
         printf("\n");
     }
     printf("\nSensor critico: %d\n", critical_value);
-    printf("Posicao: (%d, %d)\n", critical_posx, critical_posy);
+    printf("Posicao: (%d,%d)\n", critical_posx, critical_posy);
 }
 
 int main()
