@@ -3,61 +3,61 @@
 
 int **allocate_matrix(int l, int c) {
     int **mat = (int **)malloc(l * sizeof(int*));
-    for (int i = 0; i < l; i++)
-        mat[i] = (int *)malloc(c * sizeof(int));
 
     if (mat == NULL) {
         printf("Erro ao alocar memória para a matriz.\n");
         exit(1);
     }
+
+    for (int i = 0; i < l; i++) {
+        mat[i] = (int *)malloc(c * sizeof(int));
+        if (mat[i] == NULL) {
+            printf("Erro ao alocar memória para a coluna %d.\n", i);
+            exit(1);
+        }
+    }
+
     return mat;
 }
 
-int **calibration(int **mat, int l, int c) { 
-    int **calibrated_matrix = allocate_matrix(l, c);
+void calibration(int **mat, int l, int c) { 
     for (int i = 0; i < l; i++) {
         for (int j = 0; j < c; j++) {
-            calibrated_matrix[i][j] = mat[i][j] + 5;
+            mat[i][j] = mat[i][j] + 5;
         }
     }
-    return calibrated_matrix;
 }
 
-int **saturation(int **mat, int l, int c) { 
-    int **saturated_matrix = allocate_matrix(l, c);
+void saturation(int **mat, int l, int c) { 
     for (int i = 0; i < l; i++) {
         for (int j = 0; j < c; j++) {
-            saturated_matrix[i][j] = mat[i][j] > 80 ? 80 : mat[i][j];
+            mat[i][j] = mat[i][j] > 80 ? 80 : mat[i][j];
         }
     }
-    return saturated_matrix;
 }
 
-int **amplification(int **mat, int l, int c) {
-    int **amplified_matrix = allocate_matrix(l, c);
+void amplification(int **mat, int l, int c) {
     for (int i = 0; i < l; i++) {
         for (int j = 0; j < c; j++) {
-            amplified_matrix[i][j] = mat[i][j] * 2;
+            mat[i][j] = mat[i][j] * 2;
         }
     }
-    return amplified_matrix;
 }
 
-int **pipeline(int **mat, int l, int c) {
+void pipeline(int **mat, int l, int c) {
     int k; // quantidade de filtros
     scanf("%d", &k);
     int filters[k];
     for (int i = 0; i < k; i++) scanf("%d", &filters[i]);
     for (int i = 0; i < k; i++) {
         if (filters[i] == 1) {
-            mat = calibration(mat, l, c);
+            calibration(mat, l, c);
         } else if (filters[i] == 2) {
-            mat = saturation(mat, l, c);
+            saturation(mat, l, c);
         } else if (filters[i] == 3) {
-            mat = amplification(mat, l, c);
+            amplification(mat, l, c);
         }
     }
-    return mat;
 }
 
 void print_matrix(int **mat, int l, int c) {
@@ -108,16 +108,16 @@ int main()
         scanf("%d", &command);
         switch (command) {
             case 1:
-                mat = calibration(mat, n, m);
+                calibration(mat, n, m);
                 break;
             case 2:
-                mat = saturation(mat, n, m);
+                saturation(mat, n, m);
                 break;
             case 3:
-                mat = amplification(mat, n, m);
+                amplification(mat, n, m);
                 break;
             case 4:
-                mat = pipeline(mat, n, m);
+                pipeline(mat, n, m);
                 break;
             default:
                 break;
