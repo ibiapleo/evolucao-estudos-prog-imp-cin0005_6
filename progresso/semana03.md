@@ -1,9 +1,5 @@
 # Semana 03
 
-## Data
-
-> 17/03/2026 - 23/03/2026
-
 ## O que foi estudado
 
 Nesta semana estudei formatação de saída, arrays de strings e o uso de diretivas do pré-processador em C.

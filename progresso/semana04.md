@@ -1,9 +1,5 @@
 # Semana 04
 
-## Data
-
-> 24/03/2026 - 01/04/2026
-
 ## O que foi estudado
 
 Nesta semana estudei matrizes bidimensionais e funções em C, com foco em passagem de matrizes para funções e escopo de variáveis.

@@ -1,9 +1,5 @@
 # Semana 01
 
-## Data
-
-> 02/03/2026 - 04/03/2026
-
 ## O que foi estudado
 
 Nesta semana tivemos a apresentação do curso e da metodologia de ensino, entendendo como serão as aulas, atividades práticas e avaliações.

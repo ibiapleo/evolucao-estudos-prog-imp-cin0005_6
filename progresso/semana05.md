@@ -1,9 +1,5 @@
 # Semana 05
 
-## Data
-
-> 02/04/2026 - 12/04/2026
-
 ## O que foi estudado
 
 Nesta semana estudei alocacao dinamica de memoria em C, com foco no gerenciamento da heap e no uso correto de ponteiros em arrays dinamicos.

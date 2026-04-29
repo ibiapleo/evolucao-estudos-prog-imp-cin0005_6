@@ -1,9 +1,5 @@
 # Semana 02
 
-## Data
-
-> 05/03/2026 - 16/03/2026
-
 ## O que foi estudado
 
 Nesta semana estudei estruturas de laços e repetição em C.
