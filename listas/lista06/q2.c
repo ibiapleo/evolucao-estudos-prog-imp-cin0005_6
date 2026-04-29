@@ -2,182 +2,223 @@
 #include <stdlib.h>
 #include <string.h>
 
-int **alocar_matriz(int m, int n) {
-	int **mat = malloc(m * sizeof(int*));
-	for (int i = 0; i < m; i++)
-		mat[i] = malloc(n * sizeof(int));
-	return mat;
+// ── Alocação e cópia de matriz ───────────────────────────────────────
+
+// Aloca uma matriz M x N de inteiros inicializada com zeros
+int **alloc_matrix(int rows, int cols) {
+    int **mat = (int **)malloc(rows * sizeof(int *));
+    for (int i = 0; i < rows; i++)
+        mat[i] = (int *)calloc(cols, sizeof(int)); // cada linha zerada
+    return mat;
 }
 
-void liberar_matriz(int **mat, int m) {
-	for (int i = 0; i < m; i++)
-		free(mat[i]);
-	free(mat);
+// Libera toda a memória de uma matriz alocada dinamicamente
+void free_matrix(int **mat, int rows) {
+    for (int i = 0; i < rows; i++)
+        free(mat[i]); // libera cada linha
+    free(mat);        // libera o vetor de ponteiros
 }
 
-void ler_matriz(int **mat, int m, int n) {
-	for (int i = 0; i < m; i++)
-		for (int j = 0; j < n; j++)
-			scanf("%d", &mat[i][j]);
+// Cria e retorna uma cópia independente da matriz de origem
+int **copy_matrix(int **src, int rows, int cols) {
+    int **dst = alloc_matrix(rows, cols);
+    for (int i = 0; i < rows; i++)
+        for (int j = 0; j < cols; j++)
+            dst[i][j] = src[i][j]; // copia célula a célula
+    return dst;
 }
 
-void imprimir_matriz(int **mat, int m, int n) {
-	for (int i = 0; i < m; i++) {
-		for (int j = 0; j < n; j++) {
-			printf("%d", mat[i][j]);
-			if (j < n-1) printf(" ");
-		}
-		printf("\n");
-	}
+// Imprime a matriz no formato esperado pela saída padrão
+void print_matrix(int **mat, int rows, int cols) {
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            if (j) printf(" "); // espaço entre colunas, mas não antes da primeira
+            printf("%d", mat[i][j]);
+        }
+        printf("\n");
+    }
 }
 
-int **copiar_matriz(int **mat, int m, int n) {
-	int **nova = alocar_matriz(m, n);
-	for (int i = 0; i < m; i++)
-		for (int j = 0; j < n; j++)
-			nova[i][j] = mat[i][j];
-	return nova;
+// ── Cálculo das camadas de AoE ───────────────────────────────────────
+
+// Retorna uma matriz onde:
+//   layer[i][j] == 1  -> camada 1 (centro + ortogonais)
+//   layer[i][j] == 2  -> camada 2 (vizinhança da camada 1, excluindo a própria camada 1)
+//   layer[i][j] == 0  -> fora da área de efeito
+int **compute_layers(int rows, int cols, int cx, int cy) {
+    int **layer = alloc_matrix(rows, cols);
+
+    // Deslocamentos para o centro + 4 vizinhos ortogonais (camada 1)
+    int row_offset_l1[] = { 0, -1, 1,  0, 0};
+    int col_offset_l1[] = { 0,  0, 0, -1, 1};
+
+    // Marca as células da camada 1, ignorando posições fora da matriz
+    for (int k = 0; k < 5; k++) {
+        int nr = cx + row_offset_l1[k];
+        int nc = cy + col_offset_l1[k];
+        if (nr >= 0 && nr < rows && nc >= 0 && nc < cols)
+            layer[nr][nc] = 1;
+    }
+
+    // Deslocamentos para as 8 direções (vizinhança completa)
+    int row_offset8[] = {-1, -1, -1, 0, 0, 1, 1, 1};
+    int col_offset8[] = {-1,  0,  1,-1, 1,-1, 0, 1};
+
+    // Para cada célula da camada 1, marca seus vizinhos como camada 2
+    // (somente se ainda não foram marcados como camada 1 ou 2)
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            if (layer[i][j] == 1) {
+                for (int k = 0; k < 8; k++) {
+                    int nr = i + row_offset8[k];
+                    int nc = j + col_offset8[k];
+                    if (nr >= 0 && nr < rows && nc >= 0 && nc < cols && layer[nr][nc] == 0)
+                        layer[nr][nc] = 2;
+                }
+            }
+        }
+    }
+    return layer;
 }
 
-// Função para Explosão Arcana
-int **explosao_arcana(int **mat, int m, int n, int x, int y) {
-	int **res = copiar_matriz(mat, m, n);
-	int dx1[] = {0, -1, 1, 0, 0};
-	int dy1[] = {0, 0, 0, -1, 1};
-	// Camada 1
-	for (int d = 0; d < 5; d++) {
-		int nx = x + dx1[d];
-		int ny = y + dy1[d];
-		if (nx >= 0 && nx < m && ny >= 0 && ny < n) {
-			int dano = 50;
-			res[nx][ny] = res[nx][ny] - dano;
-			if (res[nx][ny] < 0) res[nx][ny] = 0;
-		}
-	}
-	// Camada 2
-	int dx2[] = {-1,-1,-1,0,0,1,1,1};
-	int dy2[] = {-1,0,1,-1,1,-1,0,1};
-	for (int d = 0; d < 8; d++) {
-		int cx = x + dx2[d];
-		int cy = y + dy2[d];
-		// Se já está na camada 1, ignora
-		int camada1 = 0;
-		for (int k = 0; k < 5; k++) {
-			if (cx == x + dx1[k] && cy == y + dy1[k]) camada1 = 1;
-		}
-		if (!camada1 && cx >= 0 && cx < m && cy >= 0 && cy < n) {
-			int dano = 25;
-			res[cx][cy] = res[cx][cy] - dano;
-			if (res[cx][cy] < 0) res[cx][cy] = 0;
-		}
-	}
-	return res;
+// ── Explosão Arcana ──────────────────────────────────────────────────
+
+// Aplica o ataque de explosão arcana e retorna a nova matriz resultante
+// Camada 1 recebe 50 de dano; camada 2 recebe 25 de dano
+int **arcane_explosion(int **grid, int rows, int cols, int cx, int cy) {
+    int **layer  = compute_layers(rows, cols, cx, cy);
+    int **result = copy_matrix(grid, rows, cols); // nunca modifica a matriz original
+
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            int damage = 0;
+            if      (layer[i][j] == 1) damage = 50; // dano total no centro
+            else if (layer[i][j] == 2) damage = 25; // dano reduzido na borda
+            if (damage > 0)
+                // HP nunca fica negativo
+                result[i][j] = (result[i][j] - damage > 0) ? result[i][j] - damage : 0;
+        }
+    }
+    free_matrix(layer, rows);
+    return result;
 }
 
-// Função auxiliar para contar vizinhos vivos
-int contar_vizinhos_vivos(int **mat, int m, int n, int i, int j) {
-	int vivos = 0;
-	for (int di = -1; di <= 1; di++) {
-		for (int dj = -1; dj <= 1; dj++) {
-			if (di == 0 && dj == 0) continue;
-			int ni = i + di;
-			int nj = j + dj;
-			if (ni >= 0 && ni < m && nj >= 0 && nj < n && mat[ni][nj] > 0)
-				vivos++;
-		}
-	}
-	return vivos;
+// ── Nuvem Venenosa ───────────────────────────────────────────────────
+
+// Conta quantos vizinhos (8 direções) de uma célula possuem HP > 0
+int count_living_neighbors(int **grid, int rows, int cols, int row, int col) {
+    int row_offset[] = {-1, -1, -1, 0, 0, 1, 1, 1};
+    int col_offset[] = {-1,  0,  1,-1, 1,-1, 0, 1};
+    int count = 0;
+    for (int k = 0; k < 8; k++) {
+        int nr = row + row_offset[k];
+        int nc = col + col_offset[k];
+        // verifica limites e se o vizinho ainda está vivo
+        if (nr >= 0 && nr < rows && nc >= 0 && nc < cols && grid[nr][nc] > 0)
+            count++;
+    }
+    return count;
 }
 
-// Função para Nuvem Venenosa
-// Retorna vetor de matrizes, e coloca em *turnos o número de turnos executados
-int ***nuvem_venenosa(int **mat, int m, int n, int x, int y, int *turnos) {
-	int ***resultados = malloc(3 * sizeof(int**));
-	int **atual = copiar_matriz(mat, m, n);
-	int dx1[] = {0, -1, 1, 0, 0};
-	int dy1[] = {0, 0, 0, -1, 1};
-	int dx2[] = {-1,-1,-1,0,0,1,1,1};
-	int dy2[] = {-1,0,1,-1,1,-1,0,1};
-	// Montar máscara da área de efeito
-	int **mask = alocar_matriz(m, n);
-	for (int i = 0; i < m; i++)
-		for (int j = 0; j < n; j++)
-			mask[i][j] = 0;
-	// Camada 1
-	for (int d = 0; d < 5; d++) {
-		int nx = x + dx1[d];
-		int ny = y + dy1[d];
-		if (nx >= 0 && nx < m && ny >= 0 && ny < n)
-			mask[nx][ny] = 1;
-	}
-	// Camada 2
-	for (int d = 0; d < 8; d++) {
-		int cx = x + dx2[d];
-		int cy = y + dy2[d];
-		int camada1 = 0;
-		for (int k = 0; k < 5; k++) {
-			if (cx == x + dx1[k] && cy == y + dy1[k]) camada1 = 1;
-		}
-		if (!camada1 && cx >= 0 && cx < m && cy >= 0 && cy < n)
-			mask[cx][cy] = 1;
-	}
-	*turnos = 0;
-	for (int t = 0; t < 3; t++) {
-		int **prox = copiar_matriz(atual, m, n);
-		int vivos = 0;
-		for (int i = 0; i < m; i++) {
-			for (int j = 0; j < n; j++) {
-				if (mask[i][j] && atual[i][j] > 0) {
-					int viz = contar_vizinhos_vivos(atual, m, n, i, j);
-					int dano = 5 + 8 * viz;
-					prox[i][j] -= dano;
-					if (prox[i][j] < 0) prox[i][j] = 0;
-					if (prox[i][j] > 0) vivos = 1;
-				}
-			}
-		}
-		resultados[t] = prox;
-		liberar_matriz(atual, m);
-		atual = copiar_matriz(prox, m, n);
-		(*turnos)++;
-		if (!vivos) {
-			liberar_matriz(atual, m);
-			break;
-		}
-	}
-	liberar_matriz(mask, m);
-	return resultados;
+// Aplica um único turno da nuvem venenosa e retorna a nova matriz
+// O dano de cada célula depende dos vizinhos vivos no estado atual (antes do turno)
+int **poison_cloud_turn(int **grid, int rows, int cols, int cx, int cy) {
+    int **layer  = compute_layers(rows, cols, cx, cy);
+    int **result = copy_matrix(grid, rows, cols); // cópia para não contaminar os cálculos do turno
+
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            // só aplica dano em células dentro da área e que ainda estejam vivas
+            if (layer[i][j] > 0 && grid[i][j] > 0) {
+                int neighbors = count_living_neighbors(grid, rows, cols, i, j);
+                int damage    = 5 + (8 * neighbors); // fórmula do enunciado
+                // HP nunca fica negativo
+                result[i][j] = (grid[i][j] - damage > 0) ? grid[i][j] - damage : 0;
+            }
+        }
+    }
+    free_matrix(layer, rows);
+    return result;
 }
 
-int main() {
-	int m, n;
-	scanf("%d %d", &m, &n);
-	int **mat = alocar_matriz(m, n);
-	ler_matriz(mat, m, n);
-	int x, y;
-	scanf("%d %d", &x, &y);
-	char ataque[32];
-	scanf("%s", ataque);
+// ── Condição de parada ───────────────────────────────────────────────
 
-	printf("Estado inicial do mapa:\n");
-	imprimir_matriz(mat, m, n);
-	printf("\n");
+// Retorna 1 se todas as unidades dentro da área de efeito chegaram a 0 HP
+int all_dead_in_area(int **grid, int **layer, int rows, int cols) {
+    for (int i = 0; i < rows; i++)
+        for (int j = 0; j < cols; j++)
+            if (layer[i][j] > 0 && grid[i][j] > 0)
+                return 0; // ainda há alguma unidade viva na área
+    return 1;
+}
 
-	if (strcmp(ataque, "EXPLOSAO_ARCANA") == 0) {
-		int **res = explosao_arcana(mat, m, n, x, y);
-		printf("Estado do mapa apos usar a Explosao Arcana:\n");
-		imprimir_matriz(res, m, n);
-		liberar_matriz(res, m);
-	} else if (strcmp(ataque, "NUVEM_VENENOSA") == 0) {
-		int turnos = 0;
-		int ***resultados = nuvem_venenosa(mat, m, n, x, y, &turnos);
-		for (int t = 0; t < turnos; t++) {
-			printf("Estado do mapa apos o turno %d:\n", t+1);
-			imprimir_matriz(resultados[t], m, n);
-			liberar_matriz(resultados[t], m);
-		}
-		free(resultados);
-	}
-	liberar_matriz(mat, m);
-	return 0;
+// ── Main ─────────────────────────────────────────────────────────────
+
+int main(void) {
+    int rows, cols;
+    scanf("%d %d", &rows, &cols);
+
+    // Lê o mapa inicial de HP dos jogadores
+    int **grid = alloc_matrix(rows, cols);
+    for (int i = 0; i < rows; i++)
+        for (int j = 0; j < cols; j++)
+            scanf("%d", &grid[i][j]);
+
+    // Lê as coordenadas do centro do ataque
+    int cx, cy;
+    scanf("%d %d", &cx, &cy);
+
+    // Lê o tipo de ataque escolhido
+    char attack_type[32];
+    scanf("%s", attack_type);
+
+    // Imprime o estado inicial antes de qualquer modificação
+    printf("Estado inicial do mapa:\n");
+    print_matrix(grid, rows, cols);
+    printf("\n");
+
+    if (strcmp(attack_type, "EXPLOSAO_ARCANA") == 0) {
+        // Declara o ponteiro para função sem typedef: retorna int**, recebe (int**, int, int, int, int)
+        int **(*execute_attack)(int **, int, int, int, int) = arcane_explosion;
+        int **result = execute_attack(grid, rows, cols, cx, cy);
+
+        printf("Estado do mapa após usar a Explosão Arcana:\n");
+        print_matrix(result, rows, cols);
+
+        free_matrix(result, rows);
+
+    } else if (strcmp(attack_type, "NUVEM_VENENOSA") == 0) {
+        // Mesmo padrão de ponteiro para função, agora apontando para poison_cloud_turn
+        int **(*execute_attack)(int **, int, int, int, int) = poison_cloud_turn;
+
+        printf("Estado do mapa, por turno, após usar a Nuvem Venenosa:\n");
+
+        // Cópia de trabalho do mapa; será atualizada a cada turno
+        int **current = copy_matrix(grid, rows, cols);
+
+        // Calcula as camadas uma única vez (não mudam entre turnos)
+        int **layer = compute_layers(rows, cols, cx, cy);
+
+        for (int turn = 1; turn <= 3; turn++) {
+            // Aplica o turno e obtém o novo estado
+            int **next = execute_attack(current, rows, cols, cx, cy);
+            print_matrix(next, rows, cols);
+
+            free_matrix(current, rows); // descarta o estado anterior
+            current = next;             // avança para o novo estado
+
+            // Interrompe se todas as unidades na área morreram
+            if (all_dead_in_area(current, layer, rows, cols))
+                break;
+
+            if (turn < 3)
+                printf("\n"); // separa os turnos na saída
+        }
+
+        free_matrix(current, rows);
+        free_matrix(layer, rows);
+    }
+
+    free_matrix(grid, rows);
+    return 0;
 }

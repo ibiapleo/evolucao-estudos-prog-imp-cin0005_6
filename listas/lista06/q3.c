@@ -2,222 +2,380 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef enum {
-    FOGO,
-    AGUA,
-    ELETRICIDADE,
-    PLANTA
-} TipoElemental;
+// Constantes para os tipos elementais dos Pokémons 
+#define TYPE_FIRE     0
+#define TYPE_WATER    1
+#define TYPE_ELECTRIC 2
+#define TYPE_PLANT    3
 
-const char* tipo_para_string(TipoElemental t) {
-    switch(t) {
-        case FOGO: return "Fogo";
-        case AGUA: return "Agua";
-        case ELETRICIDADE: return "Eletricidade";
-        case PLANTA: return "Planta";
-        default: return "";
-    }
+// Constantes de limite
+#define MAX_NAME 100
+#define MAX_CPF  50
+
+// Cada índice i representa um treinador:
+//   trainer_name[i]       -> nome
+//   trainer_cpf[i]        -> CPF
+//   trainer_age[i]        -> idade
+//   trainer_level[i]      -> nível (calculado)
+//   trainer_order[i]      -> ordem de cadastro (para desempate)
+//   trainer_count         -> quantidade total de treinadores
+static char   **trainer_name  = NULL;
+static char   **trainer_cpf   = NULL;
+static int     *trainer_age   = NULL;
+static int     *trainer_level = NULL;
+static int     *trainer_order = NULL;
+static int      trainer_count = 0;
+
+// Cada índice j representa um pokémon:
+//   poke_owner[j]   -> índice do treinador dono
+//   poke_id[j]      -> ID do pokémon (único por treinador)
+//   poke_name[j]    -> nome
+//   poke_xp[j]      -> pontos de experiência
+//   poke_atk[j]     -> ataque
+//   poke_type[j]    -> tipo elemental (enum)
+//   poke_reg[j]     -> ordem de registro (para desempate)
+//   poke_count      -> quantidade total de pokémons
+static int    *poke_owner = NULL;
+static int    *poke_id    = NULL;
+static char  **poke_name  = NULL;
+static int    *poke_xp    = NULL;
+static int    *poke_atk   = NULL;
+static int    *poke_type  = NULL;
+static int    *poke_reg   = NULL;
+static int     poke_count = 0;
+static int     poke_reg_counter = 0; // contador global de registro de pokémons 
+
+// Contador global de ordem de cadastro de treinadores
+static int trainer_reg_counter = 0;
+
+// --------------- Funções auxiliares de alocação de strings ---------------
+
+/* Duplica uma string usando malloc */
+char *dup_string(const char *src) {
+    // aloca memória para copiar a string
+    char *dst = (char *)malloc((strlen(src) + 1) * sizeof(char));
+    if (dst) strcpy(dst, src);
+    return dst;
 }
 
-typedef struct {
-    int id;
-    char nome[50];
-    TipoElemental tipo;
-    int xp;
-    int ataque;
-    int ordem_registro;
-} Pokemon;
+// --------------- Funções de cálculo ---------------
 
-typedef struct {
-    char nome[50];
-    long long int cpf;
-    int idade;
-    Pokemon *pokemons;
-    int qtd_pokemons;
-    int nivel;
-    int ordem_cadastro;
-} Treinador;
-
-typedef struct Sistema {
-    Treinador *treinadores;
-    int qtd_treinadores;
-    int contador_cadastro;
-
-    void (*cadastrar_treinador)(struct Sistema *s);
-    void (*cadastrar_pokemon)(struct Sistema *s);
-    void (*listar_classificacao)(struct Sistema *s);
-    void (*remover_treinador)(struct Sistema *s);
-    void (*atualizar_pokemon)(struct Sistema *s);
-} Sistema;
-
-int calcular_forca(Pokemon p) {
-    return (2 * p.xp) + p.ataque;
+/* Calcula a força de um pokémon: Força = (2 * XP) + Ataque */
+int calc_pokemon_strength(int xp, int atk) {
+    // fórmula de força do pokémon
+    return (2 * xp) + atk;
 }
 
-void atualizar_nivel(Treinador *t) {
-    t->nivel = 0;
-    for (int i = 0; i < t->qtd_pokemons; i++) {
-        t->nivel += (2 * t->pokemons[i].xp + t->pokemons[i].ataque);
-    }
-}
-
-void cadastrar_treinador(Sistema *s) {
-    char nome[50];
-    long long int cpf;
-    int idade;
-    scanf("%s %lld %d", nome, &cpf, &idade);
-
-    for (int i = 0; i < s->qtd_treinadores; i++) {
-        if (s->treinadores[i].cpf == cpf) return;
-    }
-
-    s->treinadores = realloc(s->treinadores, (s->qtd_treinadores + 1) * sizeof(Treinador));
-    Treinador *t = &s->treinadores[s->qtd_treinadores];
-    strcpy(t->nome, nome);
-    t->cpf = cpf;
-    t->idade = idade;
-    t->pokemons = NULL;
-    t->qtd_pokemons = 0;
-    t->nivel = 0;
-    t->ordem_cadastro = s->contador_cadastro++;
-    s->qtd_treinadores++;
-}
-
-void cadastrar_pokemon(Sistema *s) {
-    long long int cpf;
-    int id, xp, ataque, tipo_int;
-    char nome[50];
-    scanf("%lld %d %s %d %d %d", &cpf, &id, nome, &xp, &ataque, &tipo_int);
-
-    for (int i = 0; i < s->qtd_treinadores; i++) {
-        if (s->treinadores[i].cpf == cpf) {
-            Treinador *t = &s->treinadores[i];
-            for (int j = 0; j < t->qtd_pokemons; j++) {
-                if (t->pokemons[j].id == id) return;
-            }
-            t->pokemons = realloc(t->pokemons, (t->qtd_pokemons + 1) * sizeof(Pokemon));
-            Pokemon *p = &t->pokemons[t->qtd_pokemons];
-            p->id = id;
-            strcpy(p->nome, nome);
-            p->xp = xp;
-            p->ataque = ataque;
-            p->tipo = (TipoElemental)tipo_int;
-            p->ordem_registro = t->qtd_pokemons;
-            t->qtd_pokemons++;
-            atualizar_nivel(t);
-            return;
+/* Recalcula o nível de um treinador pelo índice */
+void recalc_trainer_level(int t_idx) {
+    // soma a força de todos os pokémons do treinador
+    int level = 0;
+    for (int j = 0; j < poke_count; j++) {
+        if (poke_owner[j] == t_idx) {
+            level += calc_pokemon_strength(poke_xp[j], poke_atk[j]);
         }
     }
+    trainer_level[t_idx] = level;
 }
 
-int cmp_pokemons(const void *a, const void *b) {
-    Pokemon *p1 = (Pokemon *)a;
-    Pokemon *p2 = (Pokemon *)b;
-    int f1 = calcular_forca(*p1);
-    int f2 = calcular_forca(*p2);
-    if (f1 != f2) return f2 - f1;
-    return p1->ordem_registro - p2->ordem_registro;
+// Conversão de tipo elemental para string
+const char *type_to_string(int type) {
+    // retorna o nome do tipo como string
+    if (type == TYPE_FIRE)     return "Fogo";
+    if (type == TYPE_WATER)    return "Agua";
+    if (type == TYPE_ELECTRIC) return "Eletricidade";
+    return "Planta";
 }
 
-int cmp_treinadores(const void *a, const void *b) {
-    Treinador *t1 = (Treinador *)a;
-    Treinador *t2 = (Treinador *)b;
-    if (t1->nivel != t2->nivel) return t2->nivel - t1->nivel;
-    return t1->ordem_cadastro - t2->ordem_cadastro;
+// Converte string lida do input para enum de tipo
+int string_to_type(const char *s) {
+    // mapeia o número lido para o tipo elemental: 0=Fogo, 1=Agua, 2=Eletricidade, 3=Planta
+    int val = atoi(s);
+    if (val == 0) return TYPE_FIRE;
+    if (val == 1) return TYPE_WATER;
+    if (val == 2) return TYPE_ELECTRIC;
+    return TYPE_PLANT;
 }
 
-void listar_classificacao(Sistema *s) {
-    printf("Classificacao atual\n");
-    if (s->qtd_treinadores == 0) return;
+// Encontra índice do treinador pelo CPF, retorna -1 se não achar
+int find_trainer_by_cpf(const char *cpf) {
+    // percorre todos os treinadores buscando o CPF
+    for (int i = 0; i < trainer_count; i++) {
+        if (strcmp(trainer_cpf[i], cpf) == 0) return i;
+    }
+    return -1;
+}
 
-    Treinador *temp = malloc(s->qtd_treinadores * sizeof(Treinador));
-    memcpy(temp, s->treinadores, s->qtd_treinadores * sizeof(Treinador));
+// Encontra índice do pokémon pelo dono e ID
+int find_pokemon(int t_idx, int pid) {
+    // percorre os pokémons buscando o ID dentro do treinador
+    for (int j = 0; j < poke_count; j++) {
+        if (poke_owner[j] == t_idx && poke_id[j] == pid) return j;
+    }
+    return -1;
+}
 
-    qsort(temp, s->qtd_treinadores, sizeof(Treinador), cmp_treinadores);
+// --------------- Operações principais ---------------
 
-    for (int i = 0; i < s->qtd_treinadores; i++) {
-        printf("T: %s, CPF: %lld, Nivel: %d\n", temp[i].nome, temp[i].cpf, temp[i].nivel);
-        if (temp[i].qtd_pokemons > 0) {
-            Pokemon *p_temp = malloc(temp[i].qtd_pokemons * sizeof(Pokemon));
-            memcpy(p_temp, temp[i].pokemons, temp[i].qtd_pokemons * sizeof(Pokemon));
-            qsort(p_temp, temp[i].qtd_pokemons, sizeof(Pokemon), cmp_pokemons);
-            for (int j = 0; j < temp[i].qtd_pokemons; j++) {
-                printf("  P: %d, %s, %d, %d, %s\n", p_temp[j].id, p_temp[j].nome, p_temp[j].xp, p_temp[j].ataque, tipo_para_string(p_temp[j].tipo));
+// Comando 1: Cadastrar Treinador
+void op_register_trainer(void) {
+    char name[MAX_NAME], cpf[MAX_CPF];
+    int  age;
+    // lê os dados do treinador
+    scanf("%s %s %d", name, cpf, &age);
+
+    // verifica se CPF já existe
+    if (find_trainer_by_cpf(cpf) != -1) return;
+
+    // expande os arrays paralelos de treinadores
+    int idx = trainer_count;
+    trainer_name  = (char **)realloc(trainer_name,  (idx + 1) * sizeof(char *));
+    trainer_cpf   = (char **)realloc(trainer_cpf,   (idx + 1) * sizeof(char *));
+    trainer_age   = (int *)  realloc(trainer_age,   (idx + 1) * sizeof(int));
+    trainer_level = (int *)  realloc(trainer_level, (idx + 1) * sizeof(int));
+    trainer_order = (int *)  realloc(trainer_order, (idx + 1) * sizeof(int));
+
+    // armazena os dados do novo treinador
+    trainer_name[idx]  = dup_string(name);
+    trainer_cpf[idx]   = dup_string(cpf);
+    trainer_age[idx]   = age;
+    trainer_level[idx] = 0;
+    trainer_order[idx] = trainer_reg_counter++;
+    trainer_count++;
+}
+
+// Comando 2: Cadastrar Pokémon
+void op_register_pokemon(void) {
+    char cpf[MAX_CPF], pname[MAX_NAME], stype[10];
+    int  pid, xp, atk;
+    // lê os dados do pokémon
+    scanf("%s %d %s %d %d %s", cpf, &pid, pname, &xp, &atk, stype);
+
+    // encontra o treinador pelo CPF
+    int t_idx = find_trainer_by_cpf(cpf);
+    if (t_idx == -1) return;
+
+    // verifica se o ID já existe para este treinador
+    if (find_pokemon(t_idx, pid) != -1) return;
+
+    // expande os arrays paralelos de pokémons
+    int idx = poke_count;
+    poke_owner = (int *)  realloc(poke_owner, (idx + 1) * sizeof(int));
+    poke_id    = (int *)  realloc(poke_id,    (idx + 1) * sizeof(int));
+    poke_name  = (char **)realloc(poke_name,  (idx + 1) * sizeof(char *));
+    poke_xp    = (int *)  realloc(poke_xp,    (idx + 1) * sizeof(int));
+    poke_atk   = (int *)  realloc(poke_atk,   (idx + 1) * sizeof(int));
+    poke_type  = (int *)  realloc(poke_type,  (idx + 1) * sizeof(int));
+    poke_reg   = (int *)  realloc(poke_reg,   (idx + 1) * sizeof(int));
+
+    // armazena os dados do novo pokémon
+    poke_owner[idx] = t_idx;
+    poke_id[idx]    = pid;
+    poke_name[idx]  = dup_string(pname);
+    poke_xp[idx]    = xp;
+    poke_atk[idx]   = atk;
+    poke_type[idx]  = string_to_type(stype);
+    poke_reg[idx]   = poke_reg_counter++;
+    poke_count++;
+
+    // recalcula nível do treinador após novo pokémon
+    recalc_trainer_level(t_idx);
+}
+
+// Comando 3: Listar Classificação
+void op_list_ranking(void) {
+    // cria array de índices de treinadores para ordenar
+    int *order = (int *)malloc(trainer_count * sizeof(int));
+    for (int i = 0; i < trainer_count; i++) order[i] = i;
+
+    // ordena por nível (decrescente) e, em empate, por ordem de cadastro
+    for (int i = 0; i < trainer_count - 1; i++) {
+        for (int j = i + 1; j < trainer_count; j++) {
+            int should_swap = 0;
+            // compara nível
+            if (trainer_level[order[j]] > trainer_level[order[i]]) {
+                should_swap = 1;
+            } else if (trainer_level[order[j]] == trainer_level[order[i]]) {
+                // desempate por ordem de cadastro (menor índice = cadastrou antes)
+                if (trainer_order[order[j]] < trainer_order[order[i]]) {
+                    should_swap = 1;
+                }
             }
-            free(p_temp);
+            if (should_swap) {
+                int tmp   = order[i];
+                order[i]  = order[j];
+                order[j]  = tmp;
+            }
         }
     }
-    free(temp);
-}
 
-void remover_treinador(Sistema *s) {
-    long long int cpf;
-    scanf("%lld", &cpf);
-    for (int i = 0; i < s->qtd_treinadores; i++) {
-        if (s->treinadores[i].cpf == cpf) {
-            free(s->treinadores[i].pokemons);
-            for (int j = i; j < s->qtd_treinadores - 1; j++) {
-                s->treinadores[j] = s->treinadores[j+1];
-            }
-            s->qtd_treinadores--;
-            if (s->qtd_treinadores > 0) {
-                s->treinadores = realloc(s->treinadores, s->qtd_treinadores * sizeof(Treinador));
-            } else {
-                free(s->treinadores);
-                s->treinadores = NULL;
-            }
-            return;
+    // imprime o cabeçalho da classificação
+    printf("Classificação atual\n");
+
+    // percorre treinadores na ordem classificada
+    for (int i = 0; i < trainer_count; i++) {
+        int t = order[i];
+        printf("T: %s, CPF: %s, Nivel: %d\n",
+               trainer_name[t], trainer_cpf[t], trainer_level[t]);
+
+        // cria array de índices dos pokémons deste treinador
+        int *porder = (int *)malloc(poke_count * sizeof(int));
+        int  pcnt   = 0;
+        for (int j = 0; j < poke_count; j++) {
+            if (poke_owner[j] == t) porder[pcnt++] = j;
         }
-    }
-}
 
-void atualizar_pokemon(Sistema *s) {
-    long long int cpf;
-    int id, xp, ataque, tipo_int;
-    char nome[50];
-    scanf("%lld %d %s %d %d %d", &cpf, &id, nome, &xp, &ataque, &tipo_int);
-
-    for (int i = 0; i < s->qtd_treinadores; i++) {
-        if (s->treinadores[i].cpf == cpf) {
-            Treinador *t = &s->treinadores[i];
-            for (int j = 0; j < t->qtd_pokemons; j++) {
-                if (t->pokemons[j].id == id) {
-                    strcpy(t->pokemons[j].nome, nome);
-                    t->pokemons[j].xp = xp;
-                    t->pokemons[j].ataque = ataque;
-                    t->pokemons[j].tipo = (TipoElemental)tipo_int;
-                    atualizar_nivel(t);
-                    return;
+        // ordena pokémons por força (decrescente) e, em empate, por ordem de registro
+        for (int a = 0; a < pcnt - 1; a++) {
+            for (int b = a + 1; b < pcnt; b++) {
+                int fa = calc_pokemon_strength(poke_xp[porder[a]], poke_atk[porder[a]]);
+                int fb = calc_pokemon_strength(poke_xp[porder[b]], poke_atk[porder[b]]);
+                int swap = 0;
+                if (fb > fa) {
+                    swap = 1;
+                } else if (fb == fa) {
+                    // desempate por ordem de registro
+                    if (poke_reg[porder[b]] < poke_reg[porder[a]]) {
+                        swap = 1;
+                    }
+                }
+                if (swap) {
+                    int tmp     = porder[a];
+                    porder[a]   = porder[b];
+                    porder[b]   = tmp;
                 }
             }
         }
+
+        // imprime cada pokémon do treinador
+        for (int k = 0; k < pcnt; k++) {
+            int p = porder[k];
+            printf("  P: %d, %s, %d, %d, %s\n",
+                   poke_id[p], poke_name[p],
+                   poke_xp[p], poke_atk[p],
+                   type_to_string(poke_type[p]));
+        }
+
+        free(porder);
     }
+
+    free(order);
 }
 
-int main() {
-    Sistema s;
-    s.treinadores = NULL;
-    s.qtd_treinadores = 0;
-    s.contador_cadastro = 0;
-    s.cadastrar_treinador = cadastrar_treinador;
-    s.cadastrar_pokemon = cadastrar_pokemon;
-    s.listar_classificacao = listar_classificacao;
-    s.remover_treinador = remover_treinador;
-    s.atualizar_pokemon = atualizar_pokemon;
+// Comando 4: Remover Treinador
+void op_remove_trainer(void) {
+    char cpf[MAX_CPF];
+    // lê o CPF do treinador a remover
+    scanf("%s", cpf);
+
+    int t_idx = find_trainer_by_cpf(cpf);
+    if (t_idx == -1) return;
+
+    // libera memória do treinador removido
+    free(trainer_name[t_idx]);
+    free(trainer_cpf[t_idx]);
+
+    // remove os pokémons do treinador, compactando o array
+    int new_poke_count = 0;
+    for (int j = 0; j < poke_count; j++) {
+        if (poke_owner[j] == t_idx) {
+            // libera pokémon que pertence ao treinador removido
+            free(poke_name[j]);
+        } else {
+            // mantém o pokémon, atualizando o índice do dono se necessário
+            int new_owner = poke_owner[j];
+            if (new_owner > t_idx) new_owner--;
+            poke_owner[new_poke_count] = new_owner;
+            poke_id[new_poke_count]    = poke_id[j];
+            poke_name[new_poke_count]  = poke_name[j];
+            poke_xp[new_poke_count]    = poke_xp[j];
+            poke_atk[new_poke_count]   = poke_atk[j];
+            poke_type[new_poke_count]  = poke_type[j];
+            poke_reg[new_poke_count]   = poke_reg[j];
+            new_poke_count++;
+        }
+    }
+    poke_count = new_poke_count;
+
+    // compacta o array de treinadores removendo o treinador no índice t_idx
+    for (int i = t_idx; i < trainer_count - 1; i++) {
+        trainer_name[i]  = trainer_name[i + 1];
+        trainer_cpf[i]   = trainer_cpf[i + 1];
+        trainer_age[i]   = trainer_age[i + 1];
+        trainer_level[i] = trainer_level[i + 1];
+        trainer_order[i] = trainer_order[i + 1];
+    }
+    trainer_count--;
+}
+
+// Comando 5: Atualizar Pokémon
+void op_update_pokemon(void) {
+    char cpf[MAX_CPF], pname[MAX_NAME], stype[10];
+    int  pid, xp, atk;
+    // lê os dados do pokémon a atualizar
+    scanf("%s %d %s %d %d %s", cpf, &pid, pname, &xp, &atk, stype);
+
+    int t_idx = find_trainer_by_cpf(cpf);
+    if (t_idx == -1) return;
+
+    int p_idx = find_pokemon(t_idx, pid);
+    if (p_idx == -1) return;
+
+    // atualiza os dados do pokémon
+    free(poke_name[p_idx]);
+    poke_name[p_idx] = dup_string(pname);
+    poke_xp[p_idx]   = xp;
+    poke_atk[p_idx]  = atk;
+    poke_type[p_idx] = string_to_type(stype);
+
+    // recalcula o nível do treinador após atualização
+    recalc_trainer_level(t_idx);
+}
+
+// Libera toda a memória alocada ao encerrar
+void free_all(void) {
+    // libera nomes e CPFs dos treinadores
+    for (int i = 0; i < trainer_count; i++) {
+        free(trainer_name[i]);
+        free(trainer_cpf[i]);
+    }
+    free(trainer_name);
+    free(trainer_cpf);
+    free(trainer_age);
+    free(trainer_level);
+    free(trainer_order);
+
+    // libera nomes dos pokémons
+    for (int j = 0; j < poke_count; j++) {
+        free(poke_name[j]);
+    }
+    free(poke_owner);
+    free(poke_id);
+    free(poke_name);
+    free(poke_xp);
+    free(poke_atk);
+    free(poke_type);
+    free(poke_reg);
+}
+
+int main(void) {
+    void (*ops[6])(void); // Ponteiro pra armazenar ponteiros pra funções
+    ops[0] = NULL;                  // comando 0 tratado no loop
+    ops[1] = op_register_trainer;   // cadastrar treinador
+    ops[2] = op_register_pokemon;   // cadastrar pokémon
+    ops[3] = op_list_ranking;       // listar classificação
+    ops[4] = op_remove_trainer;     // remover treinador
+    ops[5] = op_update_pokemon;     // atualizar pokémon
 
     int cmd;
-    while (scanf("%d", &cmd) && cmd != 0) {
-        if (cmd == 1) s.cadastrar_treinador(&s);
-        else if (cmd == 2) s.cadastrar_pokemon(&s);
-        else if (cmd == 3) s.listar_classificacao(&s);
-        else if (cmd == 4) s.remover_treinador(&s);
-        else if (cmd == 5) s.atualizar_pokemon(&s);
+    // lê comandos continuamente até receber 0
+    while (scanf("%d", &cmd) == 1) {
+        if (cmd == 0) break;           // encerra o programa
+        if (cmd >= 1 && cmd <= 5) {
+            ops[cmd]();                // despacha para a função correspondente
+        }
     }
-
-    for (int i = 0; i < s.qtd_treinadores; i++) {
-        free(s.treinadores[i].pokemons);
-    }
-    free(s.treinadores);
-
+    // libera toda a memória antes de sair
+    free_all();
     return 0;
 }
