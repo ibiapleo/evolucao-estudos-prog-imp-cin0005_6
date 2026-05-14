@@ -1,4 +1,4 @@
-# Lista 08 — Structs
+# Lista 08 — Unions e Bitfields
 
 ## Conteúdo Abordado
 
