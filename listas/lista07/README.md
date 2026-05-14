@@ -1,4 +1,4 @@
-# Lista 07 — Matrizes Dinâmicas
+# Lista 07 — Structs
 
 ## Conteúdo Abordado
 
@@ -8,30 +8,39 @@
 
 ## Aprendizados
 
-> Preencha com o que você aprendeu ao resolver os exercícios desta lista.
+Nesta lista, aprofundei o uso de estruturas em C para modelar cenários mais complexos, combinando manipulação de strings, ordenação e ponteiros para função. Também pratiquei a leitura e interpretação de entradas menos estruturadas, além de organizar melhor o fluxo de processamento em etapas para manter o codigo legivel e escalavel.
 
 ## Exercícios
 
 | Arquivo | Descrição |
 |---------|-----------|
-| — | Adicione seus exercícios resolvidos aqui |
+| q1.c | Sistema de catalogo de jogos com filtros por ano, letra inicial, estudio e console |
+| q2.c | Decodificacao e analise de mensagens para identificar cidadelas com ordenacao por criterios compostos |
+| q3.c | Simulacao de esquadrao de mechas com subrotinas de defesa, utilidade e ataque usando ponteiros para funcao |
 
-## Exemplos de Entrada e Saída
-
-```
-Entrada:
-3 3
-1 2 3
-4 5 6
-7 8 9
-
-Saída esperada:
-Soma da diagonal principal: 15
-```
 
 ## Como Compilar
 
+**OBS!** Via gcc tanto no windows como no linux/macos
+
+### Linux/MacOS
+- Para compilar o codigo:
 ```bash
-gcc -Wall -Wextra -o ex01 exercicio01.c
-./ex01
+gcc questao.c -o ./builds/nome_do_build
+```
+
+- Para rodar o codigo:
+```bash
+./builds/nome_do_build
+```
+
+### Windows (via gcc MINGW)
+- Para compilar o codigo:
+```bash
+gcc questao.c -o .\builds\nome_do_build
+```
+
+- Para rodar o codigo:
+```bash
+.\builds\nome_do_build.exe
 ```
